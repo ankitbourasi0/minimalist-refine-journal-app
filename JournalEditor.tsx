@@ -11,6 +11,11 @@ import  {ContentEditable } from '@lexical/react/LexicalContentEditable'
 import {HistoryPlugin} from '@lexical/react/LexicalHistoryPlugin'
 import {LexicalErrorBoundary} from '@lexical/react/LexicalErrorBoundary'
 
+//Node and Markdown tools
+import {HeadingNode, QuoteNode} from '@lexical/rich-text'
+import {MarkdownShortcutPlugin} from '@lexical/react/LexicalMarkdownShortcutPlugin'
+import {HEADING,QUOTE} from '@lexical/markdown'
+
 
 function onError(error:  Error){
     console.error(error)
@@ -23,7 +28,12 @@ const JournalEditor = () => {
         onError,
         // Nodes dictate the types of content that can be rendered in the editor.
         // By default, it only supports standard text and paragraphs.
-        nodes: []
+        nodes: [ 
+            //Registering the Nodes, If a node isnt here, Lexical will crash
+            // when you try to create it. (Added QuoteNode as a bonus!)
+            HeadingNode,
+            QuoteNode
+        ]
     }
     return (
         <LexicalComposer  initialConfig={initialConfiguration}>
@@ -37,7 +47,7 @@ const JournalEditor = () => {
                         <RichTextPlugin 
                             contentEditable={
                             <ContentEditable 
-                                className="min-h-[400px] outline-none text-gray-800 text-lg" />}
+                                className="min-h-[400px] min-w-4xl outline-none text-gray-800 text-lg" />}
                             placeholder={
                             <div 
                                 className="absolute top-0 left-0 text-gray-400 pointer-events-none text-lg">
@@ -46,6 +56,10 @@ const JournalEditor = () => {
                             }
                             ErrorBoundary={LexicalErrorBoundary}
                         />
+                        <HistoryPlugin />
+
+
+                        <MarkdownShortcutPlugin transformers={[HEADING, QUOTE]}/>
                     </div>
                 </div>
         </LexicalComposer>
