@@ -2,7 +2,7 @@
 const THEME = {
     ltr: 'text-left',
     rtl: 'text-right',
-    paragraph: 'leading-relaxed mb-4',
+    paragraph: ' ',
     quote: 'border-l-4 border-gray-300 pl-4 italic text-gray-600 my-4',
     heading: {
         h1: 'text-3xl font-bold mb-4 mt-6',

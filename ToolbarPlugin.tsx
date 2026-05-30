@@ -6,10 +6,10 @@ we use useLexicalComposerContext to get access to the editor.
 we then send a FORMAT_TEXT_COMMAND to tell Lexical to update its internal state.
 */
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
-import { FORMAT_TEXT_COMMAND, $getSelection, $isRangeSelection } from 'lexical'
+import { FORMAT_TEXT_COMMAND, $getSelection, $isRangeSelection, $createParagraphNode } from 'lexical'
 
-import {$setBlocksType} from '@lexical/selection'
-import {$createHeadingNode} from '@lexical/rich-text'
+import { $setBlocksType } from '@lexical/selection'
+import { $createHeadingNode } from '@lexical/rich-text'
 
 
 const ToolbarPlugin = () => {
@@ -18,12 +18,22 @@ const ToolbarPlugin = () => {
   const [editor] = useLexicalComposerContext()
 
 
-  //Convert to convert  the current line into a HEADING.
-  const formatHeading = (headingSize : 'h1' | 'h2' | 'h3') =>{
+  //Convert to the current line into a HEADING.
+  const formatHeading = (headingSize: 'h1' | 'h2' | 'h3') => {
     editor.update(() => {
       const selection = $getSelection()
-      if($isRangeSelection(selection)){
-        $setBlocksType(selection, ()=> $createHeadingNode(headingSize));
+      if ($isRangeSelection(selection)) {
+        $setBlocksType(selection, () => $createHeadingNode(headingSize));
+      }
+    })
+  }
+
+  //Convert to current selection into Paragraph
+  const formatParagraph = () => {
+    editor.update(() => {
+      const selection = $getSelection()
+      if ($isRangeSelection(selection)) {
+        $setBlocksType(selection, () => $createParagraphNode());
       }
     })
   }
@@ -60,6 +70,12 @@ const ToolbarPlugin = () => {
         className="px-3 py-1 bg-white border border-gray-300 rounded shadow-sm hover:bg-gray-100 font-bold text-gray-800"
       >
         H2
+      </button>
+
+      <button onClick={() => formatParagraph()}
+        className="px-3 py-1 bg-white border border-gray-300 rounded shadow-sm hover:bg-gray-100 font-bold text-gray-700"
+      >
+        P
       </button>
     </div>
   )
