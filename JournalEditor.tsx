@@ -92,7 +92,7 @@ const JournalEditor = () => {
     }
     return (
         <LexicalComposer initialConfig={initialConfiguration}>
-            <div className="mx-auto max-w-3xl p-8 mt-10 bg-white  border border-gray-100">
+            <div className="mx-auto max-w-3xl p-4   bg-white  border border-gray-100">
 
                 <div className="flex justify-between items-start">
 
