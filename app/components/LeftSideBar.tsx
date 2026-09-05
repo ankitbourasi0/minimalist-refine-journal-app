@@ -8,7 +8,7 @@ import { Home, BookMarked, CheckSquare2, BookMarked as Note, Lightbulb, Cog } fr
 
 
 const navItems = [
-    { name: "Dashboard", href: "/", icon: Home },
+    { name: "Dashboard", href: "/dashboard", icon: Home },
     { name: "Journal", href: "/journal", icon: BookMarked },
     { name: "Tasks", href: "/tasks", icon: CheckSquare2 },
     { name: "Notes", href: "/notes", icon: Note },
@@ -24,7 +24,7 @@ export function LeftSideBar() {
             initial={{ x: -100, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className="  h-screen w-64 border-r border-sidebar-border bg-sidebar"
+            className="  h-screen w-64 border-r-1 border-sidebar-border bg-sidebar"
         >
             <div className="flex h-full flex-col px-4 py-6">
                 <motion.div

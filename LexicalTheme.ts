@@ -1,3 +1,5 @@
+import { h4 } from "framer-motion/client";
+
 // LexicalTheme.ts
 const THEME = {
     ltr: 'text-left',
@@ -7,7 +9,8 @@ const THEME = {
     heading: {
         h1: 'text-3xl font-bold mb-4 mt-6',
         h2: 'text-2xl font-bold mb-3 mt-5',
-        h3: 'text-xl font-bold mb-2 mt-4'
+        h3: 'text-xl font-semibold mb-2 mt-4',
+        h4: 'text-lg  mb-1 mt-3'
     },
     text: {
         bold: 'font-bold',

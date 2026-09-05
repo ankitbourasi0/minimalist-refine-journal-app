@@ -11,7 +11,9 @@ import { FORMAT_TEXT_COMMAND, $getSelection, $isRangeSelection, $createParagraph
 import { $setBlocksType } from '@lexical/selection'
 import { $createHeadingNode } from '@lexical/rich-text'
 
+type FormatHeading = 'h1' | 'h2' | 'h3' | 'h4' 
 
+const formatValues: FormatHeading[] = ['h1', 'h2', 'h3', 'h4']
 const ToolbarPlugin = () => {
 
   //This HOOK give us access to the underlying Lexical Editor Instance, 
@@ -19,7 +21,7 @@ const ToolbarPlugin = () => {
 
 
   //Convert to the current line into a HEADING.
-  const formatHeading = (headingSize: 'h1' | 'h2' | 'h3') => {
+  const formatHeading = (headingSize: FormatHeading) => {
     editor.update(() => {
       const selection = $getSelection()
       if ($isRangeSelection(selection)) {
@@ -38,7 +40,7 @@ const ToolbarPlugin = () => {
     })
   }
   return (
-    <div className="flex gap-2 mb-6 pb-4 border-b border-gray-200">
+    <div className="flex gap-2 mb-6 pb-4 border-b border-gray-200 font-poppins">
       <button
         onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold')}
         className="px-3 py-1 bg-white border border-gray-300 rounded shadow-sm hover:bg-gray-100 font-bold text-gray-700">
@@ -59,24 +61,18 @@ const ToolbarPlugin = () => {
         U
       </button>
 
-      <button onClick={() => formatHeading('h1')}
-        className="px-3 py-1 bg-white border border-gray-300 rounded shadow-sm hover:bg-gray-100 font-bold text-gray-900"
-      >
-        H1
-      </button>
+      <select onChange={(e) => formatHeading(e.currentTarget.value as FormatHeading)} className="px-3 py-1 bg-white border border-gray-300 rounded shadow-sm font-poppins hover:bg-gray-100 text-gray-700">
+        <option value="paragraph" className="font-poppins">Normal</option>
+        {formatValues.map((value) => (
+          <option key={value} value={value} className="font-poppins">
+            {value.charAt(0).toUpperCase() + value.slice(1)}
+          </option>
+        ))}
+      </select>
+     
 
 
-      <button onClick={() => formatHeading('h2')}
-        className="px-3 py-1 bg-white border border-gray-300 rounded shadow-sm hover:bg-gray-100 font-bold text-gray-800"
-      >
-        H2
-      </button>
 
-      <button onClick={() => formatParagraph()}
-        className="px-3 py-1 bg-white border border-gray-300 rounded shadow-sm hover:bg-gray-100 font-bold text-gray-700"
-      >
-        P
-      </button>
     </div>
   )
 }
