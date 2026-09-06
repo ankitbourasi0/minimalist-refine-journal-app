@@ -7,7 +7,7 @@ import {
     saveEditorStateLocally,
 } from "../services/editor-persistence.service";
 
-const TEST_DOCUMENT_ID = "test-document"
+const TEST_DOCUMENT_ID = "indexddb-test-document"
 
 export default function IndexedDbTest() {
     const [message, setMessage] = useState<string>("Not tested yet.");

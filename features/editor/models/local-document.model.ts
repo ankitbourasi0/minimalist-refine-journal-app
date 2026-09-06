@@ -1,6 +1,9 @@
+import { SerializedEditorState } from "lexical";
+
+
 export interface LocalDocumentRecord {
   documentId: string;
-  lexicalState: object;
+  lexicalState: SerializedEditorState;
   localRevision: number;
   serverRevision: number;
   isDirty: boolean;

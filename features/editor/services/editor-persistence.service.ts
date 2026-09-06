@@ -1,7 +1,8 @@
+import { SerializedEditorState } from "lexical";
 import {getLocalDocument,saveLocalDocument } from "../database/document.repository"
 import type {LocalDocumentRecord} from  "../models/local-document.model"
 
-export async function saveEditorStateLocally( documentId: string, lexicalState: object): Promise<LocalDocumentRecord> {
+export async function saveEditorStateLocally( documentId: string, lexicalState: SerializedEditorState): Promise<LocalDocumentRecord> {
     const now = new Date().toISOString();
 
     const existingDocument = await getLocalDocument(documentId);
@@ -23,7 +24,7 @@ export async function saveEditorStateLocally( documentId: string, lexicalState: 
     return documentToSave;
 } 
 
-export async function loadEditorStateLocally(documentId: string): Promise<object | null> {
+export async function loadEditorStateLocally(documentId: string): Promise<SerializedEditorState | null> {
     const existingDocument = await getLocalDocument(documentId);
     return existingDocument ? existingDocument.lexicalState : null;
 }

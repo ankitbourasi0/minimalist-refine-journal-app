@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 
 import {
     loadEditorStateLocally,
     saveEditorStateLocally,
 } from "../services/editor-persistence.service";
+import { EditorState } from 'lexical';
 
 interface EditorPersistencePluginProps {
     documentId: string;
@@ -35,22 +36,52 @@ function EditorPersistencePlugin({
     const saveTimeRef = useRef<ReturnType<typeof setTimeout> | null>(
         null
     );
-
+    const latestEditorStateRef = useRef<EditorState | null>(null);
     const isRestoredRef = useRef(false);
+
     const isRestoringRef = useRef(false);
+
+    const saveState  = useCallback(async () => {
+        const editorState= latestEditorStateRef.current;
+        if (!editorState || !isRestoredRef.current) {
+            return;
+        }
+        try {
+            const serializedEditorState = editorState.toJSON();
+
+                        console.log(
+                            "Attempting IndexedDB save:",
+                            serializedEditorState
+                        );
+
+                       await saveEditorStateLocally(
+                            documentId,
+                            serializedEditorState
+                        );
+
+                        console.log(
+                            "IndexedDB save successful:",
+                            documentId
+                        );
+                    } catch (error) {
+                        console.error(
+                            "Failed to save Lexical editor state locally:",
+                            error
+                        );
+                    }
+                },[documentId]
+            )
+
 
     useEffect(() => {
 
         let isCancelled = false;
         isRestoredRef.current = false;
+        latestEditorStateRef.current = null;
+
         async function restoreDocument() {
-            if (isRestoringRef.current) {
-                return;
-            }
-
-            isRestoringRef.current = true;
-
-            try {
+              try {
+          
                 const storedLexicalState = await loadEditorStateLocally(documentId);
 
                 if (isCancelled) {
@@ -58,16 +89,23 @@ function EditorPersistencePlugin({
                 }
 
                 if (storedLexicalState) {
+                    const children = storedLexicalState?.root?.children;
+                    if(Array.isArray(children) && children.length > 0) {
+                        
                     const parsedEditorState = editor.parseEditorState(JSON.stringify(storedLexicalState));
+
                     editor.setEditorState(parsedEditorState, { tag: "local-restore" });
 
                     console.log("Lexical document restored from IndexedDB:", documentId);
+
+                    
                 } else {
                     console.log(
-                        "No local Lexical document found:",
+                         "Stored Lexical document is empty. Restore skipped:",
                         documentId
                     );
                 }
+            }
             } catch (error) {
                 console.error(
                     "Failed to restore Lexical document:",
@@ -78,7 +116,6 @@ function EditorPersistencePlugin({
                     isRestoredRef.current = true;
                 }
 
-                isRestoringRef.current = false;
             }
 
         }
@@ -111,6 +148,7 @@ function EditorPersistencePlugin({
                 if (!editorContentChanged) {
                     return;
                 }
+                 latestEditorStateRef.current = editorState;
 
                 /*
                 The timer resets whenever the user types again.
@@ -131,33 +169,25 @@ function EditorPersistencePlugin({
                     clearTimeout(saveTimeRef.current)
                 }
 
-                saveTimeRef.current = setTimeout(async () => {
-                    try {
-                        const serializedEditorState = editorState.toJSON();
+                saveTimeRef.current = setTimeout( ()=>{
+                    void saveState();
+                    saveTimeRef.current = null;
 
-                        console.log(
-                            "Attempting IndexedDB save:",
-                            serializedEditorState
-                        );
-
-                        const savedDocument = await saveEditorStateLocally(
-                            documentId,
-                            serializedEditorState
-                        );
-
-                        console.log(
-                            "IndexedDB save successful:",
-                            savedDocument
-                        );
-                    } catch (error) {
-                        console.error(
-                            "Failed to save Lexical editor state locally:",
-                            error
-                        );
-                    }
                 }, debounceMilliseconds);
             }
         );
+
+        const handlePageHide = ()=>{
+            if (saveTimeRef.current) {
+            clearTimeout(saveTimeRef.current)
+            saveTimeRef.current = null
+            }    
+            void saveState();
+
+        }
+
+        window.addEventListener("pagehide", handlePageHide);
+
 
 
         return () => {
@@ -165,13 +195,15 @@ function EditorPersistencePlugin({
             isCancelled = true;
                
             unregisterUpdateListener();
-
+window.removeEventListener("pagehide", handlePageHide);
             if (saveTimeRef.current) {
                 clearTimeout(saveTimeRef.current)
                 saveTimeRef.current = null
             }
+
+            void saveState();
         };
-    }, [documentId, debounceMilliseconds, editor])
+    }, [documentId, debounceMilliseconds, editor, saveState]);
 
     return null;
 }
